@@ -1,126 +1,57 @@
 # 🦠 RETROVÍRUS
 
-> **Trabalho Final — Computação Gráfica (2026/1)**  
-> Um jogo interativo 3D construído inteiramente com **Python (Py5Script)** e **WebGL/GLSL**, explorando técnicas de computação gráfica em tempo real.
+> **Trabalho de Computação Gráfica (EEL882) — 2026.1**  
+> Um jogo interativo direto no navegador, onde você controla um patógeno microscópico em uma jornada letal pelo corpo humano!
 
 ---
 
-## 📖 Sobre o Projeto
+## 🎮 Como Jogar?
 
-**RETROVÍRUS** é um jogo educativo e interativo que simula a jornada de um vírus pelo corpo humano. O jogador controla um retrovírus que precisa atravessar o **túnel epitelial** (tecido nasal), desviando de cílios e infectando células, para então entrar na **corrente sanguínea** em uma fuga frenética por um tubo vascular renderizado inteiramente via **raymarching SDF**.
+O jogo roda 100% no seu navegador, sem precisar instalar nada! 
 
-O projeto foi desenvolvido como trabalho final da disciplina de Computação Gráfica, demonstrando na prática conceitos fundamentais como:
+👉 **[CLIQUE AQUI PARA JOGAR AGORA](https://hugo-antunes19.github.io/EEL882-20261-Comp-Grafica)** 👈
 
-- Renderização 3D em tempo real (WebGL)
-- Curvas de Bézier cúbicas para modelagem orgânica
-- Raymarching com Signed Distance Functions (SDF)
-- Shaders GLSL (vertex + fragment)
-- Geração procedural de cenários
-- Simulação física simplificada (sistema de chicote)
-- Detecção de colisão 3D
+### Controles
+É super fácil dominar o hospedeiro:
+- **Movimentação:** Use as teclas `W A S D` ou as `Setas` do teclado.
+- **Avançar nos menus / Subir (Fase 1):** Pressione `ESPAÇO`.
+- **Pausar o jogo:** Aperte `ESC`.
 
 ---
 
-## 🎮 Gameplay
+## 📖 A Jornada da Infecção
 
-### Fase 1 — Túnel Epitelial
-O jogador navega por um túnel cilíndrico que representa o tecido epitelial nasal. Deve desviar dos **cílios** (modelados como curvas de Bézier 3D com simulação física de chicote) e coletar **células** para infectá-las.
+Você controla um vírus letal e seu objetivo é colonizar o hospedeiro passando por dois estágios cruciais:
 
-- **Objetivo:** Infectar **5 células** para avançar à Fase 2
-- **Perigo:** Colidir com a ponta de um cílio encerra o jogo
-- **Movimentação:** Livre em todos os eixos dentro do túnel
-
-### Fase 2 — Tubo Sanguíneo
-Um *endless runner* dentro de um vaso sanguíneo, renderizado completamente por **raymarching SDF** em um fragment shader GLSL. Obstáculos abstratos (morphing entre esferas, cubos e toros) surgem pelo caminho.
-
-- **Objetivo:** Sobreviver o máximo possível, acumulando distância
-- **Dificuldade:** A velocidade aumenta progressivamente
-- **Visual:** Cenário inteiro calculado por raio no GPU
+1. **Fase 1 (Túnel Epitelial):** Você invade a cavidade nasal. O desafio aqui é desviar dos perigosos cílios de defesa do organismo enquanto tenta capturar e infectar células saudáveis.
+2. **Fase 2 (Corrente Sanguínea):** Uma fuga alucinante! Você cai num vaso sanguíneo em alta velocidade e precisa desviar freneticamente de hemácias e glóbulos brancos.
 
 ---
 
-## 🕹️ Controles
+## 💻 Por Trás dos Panos (Tecnologia)
 
-| Ação | Teclas |
-|---|---|
-| Mover lateralmente | `← →` ou `A` `D` |
-| Mover verticalmente | `↑ ↓` ou `W` `S` |
-| Subir (Fase 1) | `Espaço` |
-| Descer (Fase 1) | `Ctrl` |
-| Avançar / Recuar (Fase 1) | `W` / `S` |
-| Iniciar / Reiniciar | `Espaço` ou qualquer tecla de movimento |
-| Pular para Fase 2 (debug) | `Enter` |
+Embora você só precise clicar no link para jogar, debaixo do capô nós construímos o jogo do zero usando **Python (PyScript)** interagindo diretamente com a placa de vídeo via **WebGL e Shaders GLSL**. 
 
----
+Alguns dos truques de Computação Gráfica que usamos:
+- **Raymarching e SDFs:** A segunda fase do jogo não tem malhas 3D ou polígonos baixados da internet! Tudo é gerado matematicamente com equações de distância (Signed Distance Fields) diretamente na placa de vídeo, criando essas formas biológicas super orgânicas.
+- **Curvas de Bézier:** Os cílios da Fase 1 não são linhas duras; nós usamos equações de curvas de Bézier e adicionamos uma "física de chicote" para que eles balancem de forma natural.
+- **Iluminação e Shaders:** O brilho do sangue e o formato gelatinoso das hemácias (Subsurface Scattering) foram simulados escrevendo nossas próprias contas de refração e reflexão de luz na GPU.
 
-## 🛠️ Tecnologias Utilizadas
-
-| Tecnologia | Uso |
-|---|---|
-| **Python 3 (Py5Script / Pyodide)** | Lógica do jogo, física, geração procedural |
-| **p5.js (WebGL)** | Renderização 3D (Fase 1), canvas, HUD |
-| **GLSL ES** | Vertex + Fragment Shaders (Fase 2) |
-| **Raymarching SDF** | Renderização volumétrica do túnel sanguíneo |
-| **Curvas de Bézier** | Modelagem e animação dos cílios |
+Se quiser mergulhar fundo na matemática de como fizemos tudo isso, confira o arquivo [`DOCUMENTACAO.md`](DOCUMENTACAO.md) aqui no repositório!
 
 ---
 
-## 🚀 Como Executar
+## 📂 O que tem no repositório?
 
-### Pré-requisitos
-- Navegador moderno com suporte a **WebGL** (Chrome, Firefox, Edge)
-- Servidor local ou ambiente compatível com **Py5Script**
-
-### Execução
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/hugo-antunes19/Final-CG-20261.git
-   cd Final-CG-20261
-   ```
-
-2. Abra o projeto em um ambiente compatível com **Py5Script** (PyScript + p5.js).  
-   O arquivo principal é o [`sketch.py`](sketch.py).
-
-3. O jogo será carregado no navegador. Pressione **Espaço** para começar!
-
----
-
-## 📂 Estrutura do Projeto
-
-```
-Final-CG-20261/
-├── sketch.py           # Código-fonte principal do jogo (~1035 linhas)
-├── README.md           # Este arquivo
-└── docs/
-    ├── arquitetura.md          # Arquitetura geral e fluxo do programa
-    ├── fase1_tunel_epitelial.md # Detalhes da Fase 1
-    ├── fase2_tubo_sanguineo.md  # Detalhes da Fase 2 (Raymarching)
-    ├── shaders.md               # Documentação dos shaders GLSL
-    ├── fisica_cilios.md         # Sistema de física dos cílios
-    └── geracao_procedural.md    # Geração procedural de cenários
-```
-
----
-
-## 📚 Documentação
-
-A documentação completa está disponível no diretório [`docs/`](docs/):
-
-- [**Arquitetura**](docs/arquitetura.md) — Visão geral da estrutura, estados e fluxo do programa
-- [**Fase 1 — Túnel Epitelial**](docs/fase1_tunel_epitelial.md) — Geometria 3D, cílios, células e colisão
-- [**Fase 2 — Tubo Sanguíneo**](docs/fase2_tubo_sanguineo.md) — Raymarching SDF e obstáculos
-- [**Shaders GLSL**](docs/shaders.md) — Vertex e Fragment Shaders explicados linha a linha
-- [**Física dos Cílios**](docs/fisica_cilios.md) — Simulação de chicote com molas e amortecimento
-- [**Geração Procedural**](docs/geracao_procedural.md) — Algoritmos de geração determinística de cenários
+Esquecemos a bagunça! Aqui você só encontra o necessário:
+- `index.html`: A interface do site onde o jogo roda (Single Page Application).
+- `sketch.py`: O "cérebro" do jogo. É aqui que toda a lógica, movimentação e renderização em Py5Script acontece.
+- `DOCUMENTACAO.md`: O nosso diário de bordo com todas as fórmulas matemáticas e lógicas dos Shaders.
 
 ---
 
 ## 👥 Autores
 
+Desenvolvido com muito suor e computação por:
 - **Hugo Antunes** — [@hugo-antunes19](https://github.com/hugo-antunes19)
-
----
-
-## 📄 Licença
-
-Projeto acadêmico desenvolvido para a disciplina de **Computação Gráfica — 2026/1**.
+- **Vivian Souza**
