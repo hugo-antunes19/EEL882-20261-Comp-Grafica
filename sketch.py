@@ -253,14 +253,14 @@ def draw_cilio( base_z, angle, length, phase, t):
     p3y = by + iny * length + perp_y * sway3
     p3z = base_z
 
-    P5.stroke(25, 15, 10, 240) 
-    P5.strokeWeight(4.5) 
-    P5.noFill()
+    stroke(25, 15, 10, 240) 
+    strokeWeight(4.5) 
+    noFill()
 
-    P5.beginShape()
-    P5.vertex(p0x, p0y, p0z)
-    P5.bezierVertex(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z)
-    P5.endShape()
+    beginShape()
+    vertex(p0x, p0y, p0z)
+    bezierVertex(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z)
+    endShape()
 
     dz  = base_z - cam_z_f1
     if abs(dz) < CILIO_RADIUS_COL + SHIP_RADIUS_F1:
@@ -418,8 +418,8 @@ def reset_fase_1():
     apply_difficulty()        
     cilio_cache.clear()        
     
-    P5.camera()               
-    P5.perspective()          
+    camera()               
+    perspective()          
 
     cam_z_f1 = px_f1 = py_f1 = 0.0
     pontos = 0
@@ -438,8 +438,8 @@ def reset_fase_2():
 
     apply_difficulty()       
 
-    P5.camera()
-    P5.perspective()
+    camera()
+    perspective()
 
     cam_z_f2 = px_f2 = py_f2 = 0.0
     speed          = eff_speed_ini_f2   
@@ -458,11 +458,11 @@ def preload():
 
 def setup():
     global prog, hud, W, H, overlay_div
-    canvas = P5.createCanvas(900, 600, P5.WEBGL)
+    canvas = createCanvas(900, 600, WEBGL)
     canvas.parent("game-container")
-    P5.pixelDensity(1)                   
-    W, H = P5.width, P5.height
-    hud = P5.createGraphics(W, H)        
+    pixelDensity(1)                   
+    W, H = width, height
+    hud = createGraphics(W, H)        
     
     overlay_div = None
     try:
@@ -488,13 +488,13 @@ def setup():
         pass
 
 def draw():
-    P5.background(220, 180, 140)
+    background(220, 180, 140)
 
     if   state == "menu":     draw_menu_principal()
     elif state == "tutorial": draw_tutorial()
     elif state == "config":   draw_config()
-    elif state == "fase1":    P5.push(); draw_fase_1(); P5.pop()
-    elif state == "fase2":    P5.push(); draw_fase_2(); P5.pop()
+    elif state == "fase1":    push(); draw_fase_1(); pop()
+    elif state == "fase2":    push(); draw_fase_2(); pop()
     elif state == "win":      draw_win_screen()
     elif state == "win_f2":   draw_win_f2_screen()
     elif state == "pausa":    draw_pausa()
@@ -509,7 +509,7 @@ def draw():
         try:
             if state in ("fase1", "fase2", "pausa"):
                 if state != "pausa":
-                    dt_overlay = min(0.05, P5.deltaTime / 1000.0)
+                    dt_overlay = min(0.05, deltaTime / 1000.0)
                     dicas["timer"] += dt_overlay
 
                 pt_total = int(pontos * 100 + score)
@@ -564,7 +564,7 @@ def draw():
 
 def handle_esc():
     global state, state_antes_pausa, pausa_sel, prev_esc
-    esc   = P5.keyIsDown(27)
+    esc   = keyIsDown(27)
     esc_p = esc and not prev_esc
 
     if esc_p:
@@ -582,11 +582,11 @@ def handle_esc():
 def handle_menu_nav():
     global prev_up, prev_down, prev_left, prev_right, prev_enter
 
-    up    = P5.keyIsDown(P5.UP_ARROW)
-    down  = P5.keyIsDown(P5.DOWN_ARROW)
-    left  = P5.keyIsDown(P5.LEFT_ARROW)
-    right = P5.keyIsDown(P5.RIGHT_ARROW)
-    enter = P5.keyIsDown(13) or P5.keyIsDown(32)   
+    up    = keyIsDown(UP_ARROW)
+    down  = keyIsDown(DOWN_ARROW)
+    left  = keyIsDown(LEFT_ARROW)
+    right = keyIsDown(RIGHT_ARROW)
+    enter = keyIsDown(13) or keyIsDown(32)   
 
     up_p    = up    and not prev_up
     down_p  = down  and not prev_down
@@ -606,17 +606,17 @@ def handle_lod():
     if state != "fase2":
         return
 
-    l_down = P5.keyIsDown(76)
+    l_down = keyIsDown(76)
     if l_down and not prev_l:
         lod_enabled = not lod_enabled
     prev_l = l_down
 
-    lb_down = P5.keyIsDown(219)
+    lb_down = keyIsDown(219)
     if lb_down and not prev_lbr and lod_enabled:
         lod_strength = max(0.0, lod_strength - 0.1)
     prev_lbr = lb_down
 
-    rb_down = P5.keyIsDown(221)
+    rb_down = keyIsDown(221)
     if rb_down and not prev_rbr and lod_enabled:
         lod_strength = min(1.0, lod_strength + 0.1)
     prev_rbr = rb_down
@@ -626,13 +626,13 @@ def _fmt_time(seconds):
     return "%d:%02d" % (s // 60, s % 60)
 
 def _hud_setup():
-    P5.resetShader()
-    P5.camera()
-    P5.perspective()
+    resetShader()
+    camera()
+    perspective()
 
 def _hud_stamp():
-    P5.image(hud, -W / 2, -H / 2, W, H)
-    P5.perspective(P5.PI / 3.6, float(W) / float(H), 1.0, 5000.0)
+    image(hud, -W / 2, -H / 2, W, H)
+    perspective(PI / 3.6, float(W) / float(H), 1.0, 5000.0)
 
 def _hud_panel(cx, cy, w, h, r=10):
     hud.fill(35, 12, 20, 225)
@@ -737,10 +737,10 @@ def draw_menu_principal():
     hud.rect(0, 0, W, H)
 
     cx = W / 2
-    t  = P5.millis() / 1000.0
+    t  = millis() / 1000.0
     pulse = 0.96 + 0.04 * math.sin(t * 1.8)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
 
     hud.fill(80, 10, 20, 180)
     hud.textSize(int(54 * pulse))
@@ -784,7 +784,7 @@ def draw_menu_principal():
     hud.textSize(13)
     hud.text("↑ ↓  navegar   |   ENTER / ESPACO confirmar", cx, H - 16)
 
-    hud.textAlign(P5.LEFT, P5.BASELINE)
+    hud.textAlign(LEFT, BASELINE)
     _hud_stamp()
 
 def draw_tutorial():
@@ -801,7 +801,7 @@ def draw_tutorial():
 
     _hud_panel(cx, cy, 530, 350)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
     hud.fill(255, 165, 80)
     hud.textSize(22)
     hud.text(slide["titulo"], cx, cy - 138)
@@ -828,20 +828,20 @@ def draw_tutorial():
     if tutorial_page > 0:
         hud.fill(220, 185, 100)
         hud.textSize(15)
-        hud.textAlign(P5.LEFT, P5.CENTER)
+        hud.textAlign(LEFT, CENTER)
         hud.text("← ANTERIOR", 30, H - 20)
     if tutorial_page < n - 1:
         hud.fill(220, 185, 100)
         hud.textSize(15)
-        hud.textAlign(P5.RIGHT, P5.CENTER)
+        hud.textAlign(RIGHT, CENTER)
         hud.text("PROXIMO →", W - 30, H - 20)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
     hud.fill(120, 88, 88)
     hud.textSize(13)
     hud.text("ENTER / ESC = voltar ao menu", cx, H - 20)
 
-    hud.textAlign(P5.LEFT, P5.BASELINE)
+    hud.textAlign(LEFT, BASELINE)
     _hud_stamp()
 
 def draw_config():
@@ -855,7 +855,7 @@ def draw_config():
     cx, cy = W / 2, H / 2
     _hud_panel(cx, cy, 490, 310)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
     hud.fill(255, 165, 80)
     hud.textSize(22)
     hud.text("CONFIGURACOES", cx, cy - 126)
@@ -887,17 +887,17 @@ def draw_config():
             ts = 15
 
         hud.textSize(ts)
-        hud.textAlign(P5.LEFT, P5.CENTER)
+        hud.textAlign(LEFT, CENTER)
         hud.text(label, cx - 180, y)
-        hud.textAlign(P5.RIGHT, P5.CENTER)
+        hud.textAlign(RIGHT, CENTER)
         hud.text(("< " if sel else "") + valor + (" >" if sel else ""), cx + 180, y)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
     hud.fill(120, 88, 88)
     hud.textSize(13)
     hud.text("↑ ↓  item   |   ← →  valor   |   ENTER / ESC voltar", cx, H - 16)
 
-    hud.textAlign(P5.LEFT, P5.BASELINE)
+    hud.textAlign(LEFT, BASELINE)
     _hud_stamp()
 
 def draw_win_screen():
@@ -911,7 +911,7 @@ def draw_win_screen():
     cx, cy = W / 2, H / 2
     _hud_panel(cx, cy, 430, 230)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
 
     hud.fill(100, 255, 150)
     hud.textSize(28)
@@ -938,7 +938,7 @@ def draw_win_screen():
     hud.textSize(13)
     hud.text("ESC — voltar ao menu", cx, cy + 76)
 
-    hud.textAlign(P5.LEFT, P5.BASELINE)
+    hud.textAlign(LEFT, BASELINE)
     _hud_stamp()
 
 def draw_win_f2_screen():
@@ -956,7 +956,7 @@ def draw_win_f2_screen():
     # Painel um pouco mais alto para acomodar o placar final
     _hud_panel(cx, cy, 460, 250)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
 
     # Título de Vitória (Verde vibrante)
     hud.fill(100, 255, 150)
@@ -992,7 +992,7 @@ def draw_win_f2_screen():
     hud.textSize(15)
     hud.text("ESPACO / ENTER — voltar ao menu", cx, cy + 86)
 
-    hud.textAlign(P5.LEFT, P5.BASELINE)
+    hud.textAlign(LEFT, BASELINE)
     _hud_stamp()
 
 def draw_game_over():
@@ -1006,7 +1006,7 @@ def draw_game_over():
     cx, cy = W / 2, H / 2
     _hud_panel(cx, cy, 490, 330)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
 
     hud.fill(255, 60, 60)
     hud.textSize(32)
@@ -1048,7 +1048,7 @@ def draw_game_over():
     hud.textSize(13)
     hud.text("ESC — voltar ao menu", cx, cy + 134)
 
-    hud.textAlign(P5.LEFT, P5.BASELINE)
+    hud.textAlign(LEFT, BASELINE)
     _hud_stamp()
 
 def draw_pausa():
@@ -1062,7 +1062,7 @@ def draw_pausa():
     cx, cy = W / 2, H / 2
     _hud_panel(cx, cy, 370, 250)
 
-    hud.textAlign(P5.CENTER, P5.CENTER)
+    hud.textAlign(CENTER, CENTER)
 
     hud.fill(200, 220, 255)
     hud.textSize(26)
@@ -1093,7 +1093,7 @@ def draw_pausa():
     hud.textSize(12)
     hud.text("↑ ↓  navegar   |   ENTER confirmar", cx, H - 16)
 
-    hud.textAlign(P5.LEFT, P5.BASELINE)
+    hud.textAlign(LEFT, BASELINE)
     _hud_stamp()
 
 def virus_params(prog_t):
@@ -1122,25 +1122,25 @@ def draw_fase_1():
     global cam_z_f1, px_f1, py_f1, pontos, best_f1, collected_cells, state
     global timer_total
 
-    t  = P5.millis() / 1000.0
-    dt = min(0.05, P5.deltaTime / 1000.0)
+    t  = millis() / 1000.0
+    dt = min(0.05, deltaTime / 1000.0)
     update_timer("fase1", dt)   
 
     mv = MOVE_SPEED_F1
 
     # Lateral
-    if P5.keyIsDown(65): px_f1 += mv 
-    if P5.keyIsDown(68): px_f1 -= mv
+    if keyIsDown(65): px_f1 += mv 
+    if keyIsDown(68): px_f1 -= mv
 
-    if P5.keyIsDown(P5.UP_ARROW):    py_f1 -= mv
-    if P5.keyIsDown(P5.DOWN_ARROW):  py_f1 += mv
+    if keyIsDown(UP_ARROW):    py_f1 -= mv
+    if keyIsDown(DOWN_ARROW):  py_f1 += mv
 
     # Espaço = subir
-    if P5.keyIsDown(32): py_f1 -= mv
-    if P5.keyIsDown(17): py_f1 += mv
+    if keyIsDown(32): py_f1 -= mv
+    if keyIsDown(17): py_f1 += mv
 
-    if P5.keyIsDown(87): cam_z_f1 += FWD_SPEED_F1
-    if P5.keyIsDown(83): cam_z_f1 -= FWD_SPEED_F1 
+    if keyIsDown(87): cam_z_f1 += FWD_SPEED_F1
+    if keyIsDown(83): cam_z_f1 -= FWD_SPEED_F1 
 
     dist = math.hypot(px_f1, py_f1)
     lim  = TUNNEL_RADIUS - SHIP_RADIUS_F1 - 10.0
@@ -1148,19 +1148,19 @@ def draw_fase_1():
         px_f1 = px_f1 / dist * lim
         py_f1 = py_f1 / dist * lim
 
-    P5.background(125, 46, 46)
+    background(125, 46, 46)
 
-    P5.camera(px_f1, py_f1,        cam_z_f1 - 150.0,
+    camera(px_f1, py_f1,        cam_z_f1 - 150.0,
               px_f1, py_f1,        cam_z_f1 + 300.0,
               0, 1, 0)
-    P5.perspective(P5.PI / 3.6, float(W) / float(H), 1.0, 5000.0)
+    perspective(PI / 3.6, float(W) / float(H), 1.0, 5000.0)
 
-    P5.ambientLight(115, 53, 68) 
-    # P5.ambientLight(219, 160, 174) 
+    ambientLight(115, 53, 68) 
+    # ambientLight(219, 160, 174) 
     
     # 2. Luz principal (da frente): Branca levemente amarelada (brilho molhado)
-    P5.pointLight(255, 230, 200, px_f1, py_f1, cam_z_f1 + 100) 
-    P5.pointLight(255, 50, 80, px_f1, py_f1, cam_z_f1 - 100)
+    pointLight(255, 230, 200, px_f1, py_f1, cam_z_f1 + 100) 
+    pointLight(255, 50, 80, px_f1, py_f1, cam_z_f1 - 100)
 
     # Progressão visual da infecção (0.0 → 1.0 conforme células coletadas)
     prog_t = min(1.0, pontos / eff_pontos_para_fase2)  
@@ -1214,11 +1214,11 @@ def draw_virus_f1(prog_t, t, px, py, cam_z):
     br, bg, bb = vp["body_rgb"]
     sr, sg, sb = vp["spike_rgb"]
 
-    P5.push()
-    P5.translate(px, py, cam_z)
+    push()
+    translate(px, py, cam_z)
 
-    P5.noFill()
-    P5.strokeWeight(spike_w)
+    noFill()
+    strokeWeight(spike_w)
 
     for i in range(n_spikes):
         a_base = (i / n_spikes) * math.tau + t * 0.12   
@@ -1234,32 +1234,32 @@ def draw_virus_f1(prog_t, t, px, py, cam_z):
         tx = math.cos(tip_a) * (virus_r + spike_len)
         ty = math.sin(tip_a) * (virus_r + spike_len)
 
-        P5.stroke(br, bg, bb, 210)
-        P5.line(bx, by, 0, mx, my, 0)
+        stroke(br, bg, bb, 210)
+        line(bx, by, 0, mx, my, 0)
 
-        P5.stroke(sr, sg, sb, 220)
-        P5.line(mx, my, 0, tx, ty, 0)
+        stroke(sr, sg, sb, 220)
+        line(mx, my, 0, tx, ty, 0)
 
-        P5.noStroke()
-        P5.fill(sr, sg, sb, 230)
-        P5.push()
-        P5.translate(tx, ty, 0)
-        P5.sphere(spike_w * 1.15)
-        P5.pop()
+        noStroke()
+        fill(sr, sg, sb, 230)
+        push()
+        translate(tx, ty, 0)
+        sphere(spike_w * 1.15)
+        pop()
 
-    P5.noStroke()
+    noStroke()
 
-    P5.fill(br, bg, bb)
-    P5.sphere(virus_r)
+    fill(br, bg, bb)
+    sphere(virus_r)
 
     spec_alpha = int(_lerp(128, 80, prog_t))   
-    P5.fill(255, 220, 230, spec_alpha)
-    P5.push()
-    P5.translate(-virus_r * 0.32, -virus_r * 0.38, virus_r * 0.2)
-    P5.sphere(virus_r * 0.42)
-    P5.pop()
+    fill(255, 220, 230, spec_alpha)
+    push()
+    translate(-virus_r * 0.32, -virus_r * 0.38, virus_r * 0.2)
+    sphere(virus_r * 0.42)
+    pop()
 
-    P5.pop()   
+    pop()   
 
 def draw_booger(z, angle, radius, infection_t):
     infection_t = max(0.0, min(1.0, infection_t))
@@ -1279,44 +1279,44 @@ def draw_booger(z, angle, radius, infection_t):
     cy = math.sin(angle) * TUNNEL_RADIUS
 
     # Rotação para grudar na parede do cilindro
-    rot_z = angle + P5.PI / 2
+    rot_z = angle + PI / 2
 
-    P5.push()
-    P5.translate(cx, cy, z)
-    P5.rotateZ(rot_z)
-    P5.noStroke()
+    push()
+    translate(cx, cy, z)
+    rotateZ(rot_z)
+    noStroke()
     
-    P5.fill(br, bg, bb, 210) 
+    fill(br, bg, bb, 210) 
     # Aplica o brilho progressivo
-    P5.emissiveMaterial(em_r, em_g, em_b)
-    P5.specularMaterial(150)
-    P5.shininess(200.0) 
+    emissiveMaterial(em_r, em_g, em_b)
+    specularMaterial(150)
+    shininess(200.0) 
 
     # Criação do Cluster Amorfo e Estático
     rng = random.Random(int(z * 1000)) 
     num_blobs = rng.randint(3, 5)
 
     for i in range(num_blobs):
-        P5.push()
+        push()
         
         # Deslocamento irregular no plano da parede
         dx = rng.uniform(-radius * 0.4, radius * 0.4)
         dy = rng.uniform(-radius * 0.3, radius * 0.6) 
         dz_local = rng.uniform(-radius * 0.1, radius * 0.1)
         
-        P5.translate(dx, dy, dz_local)
-        P5.rotateZ(rng.uniform(0, math.tau))
+        translate(dx, dy, dz_local)
+        rotateZ(rng.uniform(0, math.tau))
         
         # Tamanhos aleatórios e estáticos para cada bolha
         r_x = radius * rng.uniform(0.7, 1.2)
         r_y = radius * rng.uniform(0.4, 0.8)
         r_z = radius * rng.uniform(0.04, 0.08) # Achatado contra a parede
         
-        P5.ellipsoid(r_x, r_y, r_z)
+        ellipsoid(r_x, r_y, r_z)
         
-        P5.pop()
+        pop()
 
-    P5.pop()
+    pop()
 
 def draw_tunnel(t):
     SEGS  = 32
@@ -1338,43 +1338,43 @@ def draw_tunnel(t):
         g2 = int(200 + pulse2 * 12)
         b2 = int(200 + pulse2 * 20)
 
-        P5.noStroke()
-        P5.beginShape(P5.TRIANGLE_STRIP)
+        noStroke()
+        beginShape(TRIANGLE_STRIP)
         for si in range(SEGS + 1):
             a = (si / SEGS) * math.tau
             x = math.cos(a) * TUNNEL_RADIUS
             y = math.sin(a) * TUNNEL_RADIUS
-            P5.fill(r1, g1, b1, 255)
-            P5.vertex(x, y, z1_local)
-            P5.emissiveMaterial(r2, g2, b2, 150)
-            P5.vertex(x, y, z2_local)
-            P5.emissiveMaterial(0, 0, 0, 255)
-        P5.endShape()
+            fill(r1, g1, b1, 255)
+            vertex(x, y, z1_local)
+            emissiveMaterial(r2, g2, b2, 150)
+            vertex(x, y, z2_local)
+            emissiveMaterial(0, 0, 0, 255)
+        endShape()
 
 def draw_cell(idx, z, cx, cy, t):
     pulse = 0.85 + 0.15 * math.sin(idx * 0.7 + t * 1.2)
     r     = CELL_RADIUS * pulse
-    P5.push()
-    P5.translate(cx, cy, z)   
-    P5.noStroke()
-    P5.fill(65, 209, 139)
-    P5.sphere(r)
-    P5.fill(65, 209, 139, 100)
-    P5.sphere(r * 1.35)
-    P5.pop()
+    push()
+    translate(cx, cy, z)   
+    noStroke()
+    fill(65, 209, 139)
+    sphere(r)
+    fill(65, 209, 139, 100)
+    sphere(r * 1.35)
+    pop()
 
 def draw_fase_2():
     global cam_z_f2, px_f2, py_f2, speed, score, best_f2, hit_flash, state
     global heart_hz_f2, pulse_phase_f2, timer_total
 
-    dt = min(0.05, P5.deltaTime / 1000.0)
+    dt = min(0.05, deltaTime / 1000.0)
     update_timer("fase2", dt)   
 
     mv = 14.0 * dt
-    if P5.keyIsDown(P5.LEFT_ARROW)  or P5.keyIsDown(65): px_f2 -= mv
-    if P5.keyIsDown(P5.RIGHT_ARROW) or P5.keyIsDown(68): px_f2 += mv
-    if P5.keyIsDown(P5.UP_ARROW)    or P5.keyIsDown(87): py_f2 += mv
-    if P5.keyIsDown(P5.DOWN_ARROW)  or P5.keyIsDown(83): py_f2 -= mv
+    if keyIsDown(LEFT_ARROW)  or keyIsDown(65): px_f2 -= mv
+    if keyIsDown(RIGHT_ARROW) or keyIsDown(68): px_f2 += mv
+    if keyIsDown(UP_ARROW)    or keyIsDown(87): py_f2 += mv
+    if keyIsDown(DOWN_ARROW)  or keyIsDown(83): py_f2 -= mv
 
     lim   = TUNNEL_HALF - SHIP_RADIUS_F2
     pdist = math.hypot(px_f2, py_f2)
@@ -1443,9 +1443,9 @@ def draw_fase_2():
         hit_flash = max(0.0, hit_flash - dt * 1.5)
 
     rel, rads, types, count = collect_obstacles()
-    P5.shader(prog)
+    shader(prog)
     prog.setUniform("uResolution", _to_js([float(W), float(H)]))
-    prog.setUniform("uTime",       float(P5.millis()) / 1000.0)
+    prog.setUniform("uTime",       float(millis()) / 1000.0)
     prog.setUniform("uCamZ",       float(cam_z_f2 % RIDGE_MOD))
     prog.setUniform("uAbsZ",       float(cam_z_f2))               # Passando o Z absoluto real para os cálculos finais
     prog.setUniform("uPlayer",     _to_js([float(px_f2), float(py_f2)]))
@@ -1460,8 +1460,8 @@ def draw_fase_2():
     prog.setUniform("uPulsePhase", float(pulse_phase_f2))
     prog.setUniform("uMetaZ",      float(eff_meta_f2))
     set_virus_uniforms(prog, 1.0)
-    P5.noStroke()              
-    P5.rect(0, 0, W, H)
+    noStroke()              
+    rect(0, 0, W, H)
     
 def _lerp(a, b, x):
     return a + (b - a) * x
@@ -1482,13 +1482,13 @@ def set_virus_uniforms(shader, prog_t):
 cheat_buffer = ""
 
 def keyTyped():
-    """Função nativa do p5.js que detecta teclas imprimíveis digitadas"""
+    """Função nativa do js que detecta teclas imprimíveis digitadas"""
     global cheat_buffer, state, timer_total
     
     # Só queremos ouvir o cheat code se o jogador estiver em uma fase ativa
     if state in ("fase1", "fase2"):
         # Adiciona a tecla digitada (em minúsculo) ao buffer
-        cheat_buffer += str(P5.key).lower()
+        cheat_buffer += str(key).lower()
         
         # Mantém apenas as últimas 10 letras no buffer
         if len(cheat_buffer) > 10:
