@@ -20,10 +20,25 @@ except NameError:
         return _pyto_js(x)
 
 # ---------------------------------------------------------------------------
+#  Configura os textos de dica por fase
+# ---------------------------------------------------------------------------
+DICA_DURACAO = 15.0   # segundos que a dica fica aparecendo
+
+DICAS_F1 = [
+    "Use WASD para mover para frente, trás e lateralmente e ↑ ↓ para subir/descer",
+    "Infecte as células para progredir!",
+    "Desvie dos cílios, eles balançam!",
+]
+DICAS_F2 = [
+    "Use WASD ou ← ↑ ↓ → para se mover lateralmente e verticalmente",
+    "A velocidade aumenta com o tempo. Cuidado!",
+]
+        
+# ---------------------------------------------------------------------------
 #  Constantes Fase 1 — Túnel Epitelial
 # ---------------------------------------------------------------------------
 TUNNEL_RADIUS    = 220.0    # Raio do cilindro do túnel (pixels)
-SHIP_RADIUS_F1   = 12.0     # Raio da hitbox do vírus na Fase 1 (pixels)
+SHIP_RADIUS_F1   = 15.0     # Raio da hitbox do vírus na Fase 1 (pixels)
 MOVE_SPEED_F1    = 6.0      # Velocidade lateral do vírus (pixels/frame)
 FWD_SPEED_F1     = 5.5      # Velocidade de avanço/recuo no eixo Z (pixels/frame)
 
@@ -587,6 +602,8 @@ def draw_cilio( base_z, angle, length, phase, t):
 # ---------------------------------------------------------------------------
 state = "menu"   # Estados: menu | tutorial | config | fase1 | fase2 | win | win_f2 | pausa | over
 
+dicas = {"timer": 0.0, "fase": None}
+
 # Fase 1
 cam_z_f1        = 0.0
 px_f1           = 0.0
@@ -785,7 +802,7 @@ def collect_obstacles():
 
 def reset_fase_1():
     global cam_z_f1, px_f1, py_f1, pontos, collected_cells, state
-    global cilio_cache, cilio_nodes, score
+    global cilio_cache, cilio_nodes, score, dicas
 
     apply_difficulty()        
     cilio_cache.clear()       
@@ -802,9 +819,12 @@ def reset_fase_1():
     timers["fase2"] = 0.0     
     state = "fase1"
 
+    dicas["timer"] = 0.0
+    dicas["fase"]  = "fase1"
+
 def reset_fase_2():
     global cam_z_f2, px_f2, py_f2, speed, score, hit_flash, state
-    global heart_hz_f2, pulse_phase_f2
+    global heart_hz_f2, pulse_phase_f2, dicas
 
     apply_difficulty()       
 
@@ -819,10 +839,13 @@ def reset_fase_2():
     timers["fase2"] = 0.0    
     state = "fase2"
 
+    dicas["timer"] = 0.0
+    dicas["fase"]  = "fase2"
+
 def setup():
     global prog, hud, W, H, overlay_div
     canvas = P5.createCanvas(900, 600, P5.WEBGL)
-    canvas.parent("game-container")
+    # canvas.parent("game-container")
     P5.pixelDensity(1)                   
     W, H = P5.width, P5.height
     prog = P5.createShader(VERT, FRAG)   
@@ -838,7 +861,7 @@ def setup():
         overlay_div.style.right = "20px"
         overlay_div.style.color = "#FFD278"
         overlay_div.style.fontFamily = "monospace"
-        overlay_div.style.fontSize = "18px"
+        overlay_div.style.fontSize = "12px"
         overlay_div.style.backgroundColor = "rgba(20,8,10,0.8)"
         overlay_div.style.padding = "12px"
         overlay_div.style.borderRadius = "8px"
@@ -868,25 +891,58 @@ def draw():
     handle_menu_nav()   
     handle_lod()        
 
-    global overlay_div
+    global overlay_div, dicas
     if 'overlay_div' in globals() and overlay_div:
         try:
             if state in ("fase1", "fase2", "pausa"):
+                if state != "pausa":
+                    dt_overlay = min(0.05, P5.deltaTime / 1000.0)
+                    dicas["timer"] += dt_overlay
+
                 pt_total = int(pontos * 100 + score)
-                tempo = _fmt_time(timers["fase1"] + timers["fase2"])
-                overlay_div.innerHTML = f"<b>PONTUAÇÃO GLOBAL:</b> {pt_total}<br><br><b>TEMPO TOTAL:</b> {tempo}"
+                tempo    = _fmt_time(timers["fase1"] + timers["fase2"])
+
+                dica_html = ""
+                t_dica = dicas["timer"]
+
+                if t_dica < DICA_DURACAO:
+                    lista = DICAS_F1 if dicas["fase"] == "fase1" else DICAS_F2
+
+                    # Troca de dica a cada 2 segundos
+                    idx_dica = int(t_dica / 2.0) % len(lista)
+                    texto    = lista[idx_dica]
+
+                    # Fade out nos últimos 1.5 segundos
+                    opacidade = 1.0
+                    if t_dica > DICA_DURACAO - 1.5:
+                        opacidade = max(0.0, (DICA_DURACAO - t_dica) / 1.5)
+
+                   
+                    dica_html = (
+                        f'<div style="margin-top:10px;padding-top:8px;'
+                        f'border-top:1px solid rgba(255,255,255,0.15);'
+                        f'color:rgba(180,255,160,{opacidade:.2f});'
+                        f'font-size:12px;text-align:center">'
+                        f'💡 {texto}</div>'
+                    )
+                   
+
+                overlay_div.innerHTML = (
+                    f"<b>PONTUAÇÃO GLOBAL:</b> {pt_total}"
+                    f"<br><br><b>TEMPO TOTAL:</b> {tempo}"
+                    + dica_html
+                )
                 overlay_div.style.display = "block"
-                
+
                 from js import document, window
                 canvas_elt = document.querySelector("canvas")
                 if canvas_elt:
-                    rect = canvas_elt.getBoundingClientRect()
-                    abs_top = window.scrollY + rect.top
+                    rect     = canvas_elt.getBoundingClientRect()
+                    abs_top  = window.scrollY + rect.top
                     abs_left = window.scrollX + rect.left
-                    
-                    overlay_div.style.top = f"{abs_top + 20}px"
-                    overlay_div.style.left = f"{abs_left + rect.width - 20}px"
-                    overlay_div.style.right = "auto"
+                    overlay_div.style.top       = f"{abs_top + 20}px"
+                    overlay_div.style.left      = f"{abs_left + rect.width - 20}px"
+                    overlay_div.style.right     = "auto"
                     overlay_div.style.transform = "translateX(-100%)"
             else:
                 overlay_div.style.display = "none"
