@@ -69,12 +69,11 @@ float sdHemacia(vec3 p, float r){
 
 float sdGlobuloBranco(vec3 p, float r, float seed, float lod){
   float d = sdSphere(p, r * 0.68);
-  float lp = length(p);
   float lodMix = uLodEnable * uLodStrength;
 
-  if(lp < r * 0.52) return d;
+  if(d <= 0.0) return d;
   if(lodMix > 0.001 && lod < 0.08) return d;
-  if(lp > r * 1.08) return d;
+  if(d>r*0.5) return d;
 
   float hairT = mix(1.0, smoothstep(0.12, 0.82, lod), lodMix);
   int nHair = int(mix(float(N_MICRO_MAX), mix(5.0, float(N_MICRO_MAX), hairT), lodMix));
@@ -116,7 +115,17 @@ float obstacleSDF(vec3 p, vec3 center, float r, float typ){
   return sdGlobuloBranco(rp, r * 1.2, typ, lod);
 }
 
-float heartPulse(float phase);
+float thump(float cyc, float center, float w){
+  float d = cyc - center;
+  return exp(-d * d / (w * w));
+}
+
+float heartPulse(float phase){
+  float cyc = fract(phase / 6.28318530718);
+  float s1 = thump(cyc, 0.10, 0.052);          
+  float s2 = thump(cyc, 0.27, 0.048) * 0.55;   
+  return clamp(s1 + s2, 0.0, 1.0);
+}
 
 float tunnelSDF(vec3 p){
   float wx = p.x + uPlayer.x;
@@ -124,6 +133,7 @@ float tunnelSDF(vec3 p){
   float wz = p.z + uCamZ;
 
   float beat = heartPulse(uPulsePhase - wz * TUNNEL_BEAT_LAG);
+  // raio diminui com os batimentos
   float r    = TUNNEL_HALF - TUNNEL_BEAT_AMP * beat;
 
   // 1. Distância para a parede interna do tubo
@@ -165,26 +175,24 @@ float sdVirus(vec3 p){
     vec3 mid_pt  = vec3(cos(a_base + sway*0.5) * (R + sL*0.6),
                         sin(a_base + sway*0.5) * (R + sL*0.6), 0.0);
     vec3 tip_pt  = vec3(cos(tip_a) * (R + sL), sin(tip_a) * (R + sL), 0.0);
- 
-    vec3 ab, ap; float h;
-    ab = mid_pt - base_pt; ap = vp - base_pt;
-    h = clamp(dot(ap,ab)/dot(ab,ab), 0.0, 1.0);
-    d = min(d, length(ap - h*ab) - sW*0.55);
- 
-    ab = tip_pt - mid_pt; ap = vp - mid_pt;
-    h = clamp(dot(ap,ab)/dot(ab,ab), 0.0, 1.0);
-    d = min(d, length(ap - h*ab) - sW*0.55);
- 
+
+    // 1. Primeira metade (Raiz até o Cotovelo)
+    d = min(d, sdCapsule(vp, base_pt, mid_pt, sW * 0.55));
+    
+    // 2. Segunda metade (Cotovelo até a Ponta)
+    d = min(d, sdCapsule(vp, mid_pt, tip_pt, sW * 0.55));
+  
+    // 3. A bolota do receptor na ponta
     d = min(d, sdSphere(vp - tip_pt, sW));
   }
   return d;
 }
 
-vec3 virusColor(vec3 p, vec3 n, float dif, float amb, float fre){
+vec3 virusColor(vec3 p, vec3 n, float dif, float amb, float fresnel){
   vec3 vp  = p - vec3(0.0, 0.0, VIRUS_Z);
   float distN = clamp((length(vp) - uVirusR) / uVirusSpikeLen, 0.0, 1.0);
   vec3 base   = mix(uVirusBodyCol, uVirusSpikeCol, distN);
-  vec3 col    = base * (amb + dif * 0.9) + fre * uVirusSpikeCol * 0.5;
+  vec3 col    = base * (amb + dif * 0.9) + fresnel * uVirusSpikeCol * 0.5;
   return col;
 }
 
@@ -219,22 +227,10 @@ vec3 calcNormal(vec3 p){
     mapDist(p + e.yyx) - mapDist(p - e.yyx)));
 }
 
-float thump(float cyc, float center, float w){
-  float d = cyc - center;
-  return exp(-d * d / (w * w));
-}
-
-float heartPulse(float phase){
-  float cyc = fract(phase / 6.28318530718);
-  float s1 = thump(cyc, 0.10, 0.052);          
-  float s2 = thump(cyc, 0.27, 0.048) * 0.55;   
-  return clamp(s1 + s2, 0.0, 1.0);
-}
-
 float vnoise(vec2 p){
   vec2 i = floor(p);
   vec2 f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
+  f = smoothstep(0.0, 1.0, f);
   float a = hash1(dot(i + vec2(0.0, 0.0), vec2(1.0, 57.0)));
   float b = hash1(dot(i + vec2(1.0, 0.0), vec2(1.0, 57.0)));
   float c = hash1(dot(i + vec2(0.0, 1.0), vec2(1.0, 57.0)));
@@ -306,23 +302,23 @@ void main(){
     float dif = clamp(dot(n, lig), 0.0, 1.0);  
     // Luz ambiente mais uniforme, dependendo menos do teto/chão
     float amb = 0.4 + 0.1 * n.y;              
-    float fre = pow(1.0 - clamp(dot(n, -rd), 0.0, 1.0), 3.0);
+    float fresnel = pow(1.0 - clamp(dot(n, -rd), 0.0, 1.0), 3.0);
 
     if(mat < 0.5){
       col = tunnelColor(p) * (amb + dif * 0.5);
     } else if(mat < 1.5){
-      vec3 oc = vec3(0.85, 0.12, 0.08); 
-      float sss = pow(clamp(dot(rd, n), 0.0, 1.0), 2.0) * 0.3;
-      col = oc * (amb + dif * 0.8 + sss) + fre * vec3(0.9, 0.2, 0.1);
+      vec3 obj_color = vec3(0.85, 0.12, 0.08); 
+      float subsurface_scattering = pow(clamp(dot(rd, n), 0.0, 1.0), 2.0) * 0.3;
+      col = obj_color * (amb + dif * 0.8 + subsurface_scattering) + fresnel * vec3(0.9, 0.2, 0.1);
     } else if(mat < 2.5){
-      vec3 oc = vec3(0.86, 0.88, 0.91);
-      float rim = pow(fre, 1.4);
+      vec3 obj_color = vec3(0.86, 0.88, 0.91);
+      float rim = pow(fresnel, 1.4);
       float lodMix = uLodEnable * uLodStrength;
       float tex = sin(p.x * 15.0 + p.y * 19.0) * sin(p.y * 17.0 + p.z * 21.0) * 0.5 + 0.5;
       float texAmt = lodMix * 0.10;
-      col = oc * (1.0 - texAmt + texAmt * tex) * (amb + dif * 0.92) + rim * vec3(0.95, 0.97, 1.0) * 0.45;
+      col = obj_color * (1.0 - texAmt + texAmt * tex) * (amb + dif * 0.92) + rim * vec3(0.95, 0.97, 1.0) * 0.45;
     } else {
-      col = virusColor(p, n, dif, amb, fre);
+      col = virusColor(p, n, dif, amb, fresnel);
     }
     
     // Efeito de Névoa normal quando bate em algo
