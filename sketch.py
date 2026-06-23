@@ -4,7 +4,6 @@
 # ---------------------------------------------------------------------------
 #  Fase 1: Túnel Epitelial — desvie dos cílios (Bézier 3D), infecte células
 #  Fase 2: Tubo Sanguíneo  — endless runner com raymarching SDF
-#  Fase 3: Cérebro - sistema nervoso sendo colonizado pelo vírus (WIP)
 #
 #  Controles: SETAS / WASD = mover   |   ESPAÇO = começar / reiniciar
 # ===========================================================================
@@ -38,12 +37,12 @@ DICAS_F2 = [
 #  Constantes Fase 1 — Túnel Epitelial
 # ---------------------------------------------------------------------------
 TUNNEL_RADIUS    = 220.0    # Raio do cilindro do túnel (pixels)
-SHIP_RADIUS_F1   = 15.0     # Raio da hitbox do vírus na Fase 1 (pixels)
+VIRUS_RADIUS_F1   = 15.0     # Raio da hitbox do vírus na Fase 1 (pixels)
 MOVE_SPEED_F1    = 6.0      # Velocidade lateral do vírus (pixels/frame)
 FWD_SPEED_F1     = 5.5      # Velocidade de avanço/recuo no eixo Z (pixels/frame)
 
 CELL_RADIUS      = 22.0     # Raio visual da esfera de cada célula
-CELL_COL_DIST    = SHIP_RADIUS_F1 + CELL_RADIUS  # Distância de colisão vírus↔célula
+CELL_COL_DIST    = VIRUS_RADIUS_F1 + CELL_RADIUS  # Distância de colisão vírus↔célula
 
 VIEW_DIST        = 1000.0   # Distância máxima de renderização à frente da câmera
 SEED             = 42       # Semente global para geração procedural determinística
@@ -61,7 +60,7 @@ BOOGER_CLUSTER_MAX     = 3      # Máximo de melecas por região procedural
 # ---------------------------------------------------------------------------
 MAX_OBS        = 8          # Máximo de obstáculos simultâneos enviados ao shader
 TUNNEL_HALF    = 6.0        # Meio-raio do vaso sanguíneo (unidades do shader)
-SHIP_RADIUS_F2 = 0.55       # Raio do vírus na Fase 2 (= VIRUS_R no shader)
+VIRUS_RADIUS_F2 = 0.55       # Raio do vírus na Fase 2 (= VIRUS_R no shader)
 SPACING        = 16.0       # Distância em Z entre obstáculos consecutivos
 OB_START       = 28.0       # Posição Z do primeiro obstáculo
 RIDGE_MOD      = 64.0       # Módulo para wrap de Z (evita perda de precisão float)
@@ -166,7 +165,7 @@ collected_cells = set()
 cam_z_f2  = 0.0
 px_f2     = 0.0
 py_f2     = 0.0
-speed     = 18.0
+# speed     = 18.0
 score     = 0.0
 best_f2   = 0.0
 hit_flash = 0.0
@@ -256,16 +255,15 @@ def draw_cilio( base_z, angle, length, phase, t):
     stroke(25, 15, 10, 240) 
     strokeWeight(4.5) 
     noFill()
-
     beginShape()
     vertex(p0x, p0y, p0z)
     bezierVertex(p1x, p1y, p1z, p2x, p2y, p2z, p3x, p3y, p3z)
     endShape()
 
     dz  = base_z - cam_z_f1
-    if abs(dz) < CILIO_RADIUS_COL + SHIP_RADIUS_F1:
-        tip_radius = CILIO_RADIUS_COL + SHIP_RADIUS_F1
-        body_radius = SHIP_RADIUS_F1 + 4.0
+    if abs(dz) < CILIO_RADIUS_COL + VIRUS_RADIUS_F1:
+        tip_radius = CILIO_RADIUS_COL + VIRUS_RADIUS_F1
+        body_radius = VIRUS_RADIUS_F1 + 4.0
         
         if math.hypot(p1x - px_f1, p1y - py_f1) < body_radius: return True
         if math.hypot(p2x - px_f1, p2y - py_f1) < body_radius: return True
@@ -1143,7 +1141,7 @@ def draw_fase_1():
     if keyIsDown(83): cam_z_f1 -= FWD_SPEED_F1 
 
     dist = math.hypot(px_f1, py_f1)
-    lim  = TUNNEL_RADIUS - SHIP_RADIUS_F1 - 10.0
+    lim  = TUNNEL_RADIUS - VIRUS_RADIUS_F1 - 10.0
     if dist > lim and dist > 0:
         px_f1 = px_f1 / dist * lim
         py_f1 = py_f1 / dist * lim
@@ -1156,9 +1154,8 @@ def draw_fase_1():
     perspective(PI / 3.6, float(W) / float(H), 1.0, 5000.0)
 
     ambientLight(115, 53, 68) 
-    # ambientLight(219, 160, 174) 
     
-    # 2. Luz principal (da frente): Branca levemente amarelada (brilho molhado)
+    # 2. Luz principal (da frente):
     pointLight(255, 230, 200, px_f1, py_f1, cam_z_f1 + 100) 
     pointLight(255, 50, 80, px_f1, py_f1, cam_z_f1 - 100)
 
@@ -1252,13 +1249,6 @@ def draw_virus_f1(prog_t, t, px, py, cam_z):
     fill(br, bg, bb)
     sphere(virus_r)
 
-    spec_alpha = int(_lerp(128, 80, prog_t))   
-    fill(255, 220, 230, spec_alpha)
-    push()
-    translate(-virus_r * 0.32, -virus_r * 0.38, virus_r * 0.2)
-    sphere(virus_r * 0.42)
-    pop()
-
     pop()   
 
 def draw_booger(z, angle, radius, infection_t):
@@ -1270,7 +1260,7 @@ def draw_booger(z, angle, radius, infection_t):
     bb = int(_lerp(6,   23, infection_t))
 
     # 2. Cor Emissiva (Brilho Próprio): começa em 0 (não emite luz) e escala 
-    # gradativamente multiplicando por infection_t. O marrom não brilha mais!
+    # gradativamente multiplicando por infection_t.
     em_r = int((br // 5) * infection_t)
     em_g = int((bg // 5) * infection_t)
     em_b = int((bb // 5) * infection_t)
@@ -1376,7 +1366,7 @@ def draw_fase_2():
     if keyIsDown(UP_ARROW)    or keyIsDown(87): py_f2 += mv
     if keyIsDown(DOWN_ARROW)  or keyIsDown(83): py_f2 -= mv
 
-    lim   = TUNNEL_HALF - SHIP_RADIUS_F2
+    lim   = TUNNEL_HALF - VIRUS_RADIUS_F2 - 0.52
     pdist = math.hypot(px_f2, py_f2)
     if pdist > lim and pdist > 0:
         px_f2 = px_f2 / pdist * lim
@@ -1426,14 +1416,12 @@ def draw_fase_2():
                 cx = math.cos(ang_base) * (dist * oscilacao)
                 cy = math.sin(ang_base) * (dist * oscilacao)
 
-            # =======================================================
-            # HITBOXES HONESTAS:
+            # Hitboxes:
             # tipo >= 3.14 (Glóbulo Branco): Esfera cheia, hitbox de 85% do raio visual
             # tipo < 3.14 (Hemácia): Disco achatado, hitbox de 70% do raio visual
-            # =======================================================
             hitbox_rad = rad * 0.85 if tipo >= 3.14 else rad * 0.70
 
-            if math.hypot(cx - px_f2, cy - py_f2) < hitbox_rad + SHIP_RADIUS_F2:
+            if math.hypot(cx - px_f2, cy - py_f2) < hitbox_rad + VIRUS_RADIUS_F2:
                 timer_total = timers["fase1"] + timers["fase2"]  
                 state       = "over"
                 hit_flash   = 1.0
