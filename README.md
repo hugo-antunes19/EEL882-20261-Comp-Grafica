@@ -28,25 +28,23 @@ Você controla um vírus letal e seu objetivo é colonizar o hospedeiro passando
 
 ---
 
-## 💻 Por Trás dos Panos (Tecnologia)
+## 💻 Tecnologia
 
-Embora você só precise clicar no link para jogar, debaixo do capô nós construímos o jogo do zero usando **Python (PyScript)** interagindo diretamente com a placa de vídeo via **WebGL e Shaders GLSL**. 
+Embora você só precise clicar no link para jogar, nós construímos o jogo do zero usando **Python (PyScript)** interagindo diretamente com a placa de vídeo via **WebGL e Shaders GLSL**. 
 
-Alguns dos truques de Computação Gráfica que usamos:
+Alguns dos conceitos de Computação Gráfica que usamos:
 - **Raymarching e SDFs:** A segunda fase do jogo não tem malhas 3D ou polígonos baixados da internet. Tudo é gerado matematicamente com equações de distância (Signed Distance Fields) diretamente na placa de vídeo, criando formas biológicas orgânicas.
 - **Curvas de Bézier:** Os cílios da Fase 1 não são linhas duras; nós usamos equações de curvas de Bézier e adicionamos uma "física de chicote" para que eles balancem de forma natural.
-- **Iluminação e Shaders:** O brilho do sangue e o formato gelatinoso das hemácias (Subsurface Scattering) foram simulados escrevendo nossas próprias contas de refração e reflexão de luz na GPU.
-
-Se quiser mergulhar fundo na matemática de como fizemos tudo isso, confira o arquivo [`DOCUMENTACAO.md`](DOCUMENTACAO.md) aqui no repositório!
+- **Iluminação e Shaders:** O brilho do sangue e o formato das hemácias foram simulados escrevendo nossas próprias contas de refração e reflexão de luz na GPU.
 
 ---
 
 ## 📂 O que tem no repositório?
 
-Esquecemos a bagunça! Aqui você só encontra o necessário:
 - `index.html`: A interface do site onde o jogo executa.
 - `sketch.py`: O jogo de fato. É aqui que toda a lógica, movimentação e renderização em Py5Script acontece.
-- `DOCUMENTACAO.md`: A nossa documentação com toda a lógica desenvolvida.
+- `shader.frag`: Responsável por executar toda a matemática pesada do Raymarching direto na GPU.
+- `shader.vert`: Posiciona os vértices e prepara a estrutura 3D básica antes de aplicarmos a arte visual.
 
 ---
 
