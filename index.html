@@ -284,28 +284,6 @@
                     <em>Dica: Fique atento ao balanço dos cílios e antecipe seus movimentos!</em>
                 </p>
             </div>
-
-            <div class="card full-width">
-                <h2>💻 Conceitos de Computação Gráfica (Por trás dos panos)</h2>
-                <div class="cg-grid">
-                    <div class="cg-item">
-                        <h3>Raymarching</h3>
-                        <p>Em vez de construir a Corrente Sanguínea usando os tradicionais polígonos, nós desenhamos a cena "lançando raios" a partir da câmera para dentro da tela. A placa de vídeo avança o raio passo a passo até ele encostar em algo, o que nos permite criar formas super orgânicas sem travar o jogo.</p>
-                    </div>
-                    <div class="cg-item">
-                        <h3>Signed Distance Fields (SDF)</h3>
-                        <p>Para o Raymarching saber onde as coisas estão, não usamos modelos 3D baixados, mas sim <strong>fórmulas matemáticas</strong>! Cada hemácia ou glóbulo branco é uma equação que diz qual a distância até ele. Nossas formas foram baseadas no incrível <a href="https://iquilezles.org/articles/distfunctions/" target="_blank" style="color: #ff8a8a; text-decoration: underline;">catálogo de funções do Íñigo Quílez</a>.</p>
-                    </div>
-                    <div class="cg-item">
-                        <h3>Curvas de Bézier 3D</h3>
-                        <p>Sabe aqueles cílios perigosos balançando na Fase 1? Eles são criados matematicamente através de <strong>Curvas de Bézier</strong>. Para deixar o movimento natural, nós programamos uma "física de chicote": a base da curva se move primeiro, e a ponta só balança alguns milissegundos depois.</p>
-                    </div>
-                    <div class="cg-item">
-                        <h3>Iluminação Customizada (Shaders)</h3>
-                        <p>A iluminação da Fase 2 é calculada pixel a pixel direto na placa de vídeo (Fragment Shader). O código consegue sentir a curvatura das células e aplica reflexos de luz de forma realista, incluindo um contorno brilhante nas bordas (o famoso efeito <em>Fresnel</em>).</p>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 
